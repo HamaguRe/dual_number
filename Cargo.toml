@@ -5,3 +5,4 @@ authors = ["HamaguRe <space-denpa.jp>"]
 edition = "2018"
 
 [dependencies]
+num-traits = "0.2.6"
