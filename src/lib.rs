@@ -1,68 +1,63 @@
-// f32 or f64
-
-extern crate num_traits;
-use num_traits::float::Float;
+// f64 only
 
 pub type DualNumber<T> = (T, T);  // (real part, dual part)
 
 
 #[inline(always)]
-pub fn add<T: Float>(a: DualNumber<T>, b: DualNumber<T>) -> DualNumber<T> {
+pub fn add(a: DualNumber<f64>, b: DualNumber<f64>) -> DualNumber<f64> {
     (a.0 + b.0, a.1 + b.1)
 }
 
 #[inline(always)]
-pub fn mul<T: Float>(a: DualNumber<T>, b: DualNumber<T>) -> DualNumber<T> {
+pub fn scale(s: f64, d: DualNumber<f64>) -> DualNumber<f64> {
+    (s * d.0, s * d.1)
+}
+
+#[inline(always)]
+pub fn mul(a: DualNumber<f64>, b: DualNumber<f64>) -> DualNumber<f64> {
     (a.0*b.0, a.0*b.1 + a.1*b.0)
 }
 
 /// a / b
 #[inline(always)]
-pub fn div<T: Float>(a: DualNumber<T>, b: DualNumber<T>) -> DualNumber<T> {
+pub fn div(a: DualNumber<f64>, b: DualNumber<f64>) -> DualNumber<f64> {
     let real = a.0 / b.0;
     let dual = (b.0 * a.1 - b.1 * a.0) / (b.0 * b.0);
     (real, dual)
 }
 
 #[inline(always)]
-pub fn conj<T: Float>(a: DualNumber<T>) -> DualNumber<T> {
+pub fn conj(a: DualNumber<f64>) -> DualNumber<f64> {
     (a.0, -a.1)
 }
 
 #[inline(always)]
-pub fn inverse<T: Float>(a: DualNumber<T>) -> DualNumber<T> {
-    let one = T::one();
-
-    let real = one / a.0;
-    let dual = -a.1 / (a.0 * a.0);
-    (real, dual)
+pub fn inverse(a: DualNumber<f64>) -> DualNumber<f64> {
+    let tmp = (a.0 * a.0).recip();
+    scale( tmp,  (a.0, -a.1) )
 }
 
 #[inline(always)]
-pub fn sqrt<T: Float>(a: DualNumber<T>) -> DualNumber<T> {
-    let two = T::one() + T::one();
-
+pub fn sqrt(a: DualNumber<f64>) -> DualNumber<f64> {
     let real = a.0.sqrt();
-    let dual = a.1 / ( two * a.0.sqrt() );
+    let dual = a.1 / ( 2.0 * a.0.sqrt() );
     (real, dual)
 }
 
 #[inline(always)]
-pub fn sin<T: Float>(a: DualNumber<T>) -> DualNumber<T> {
-    let real = a.0.sin();
-    let dual = a.1 * a.0.cos();
-    (real, dual)
+pub fn sin(a: DualNumber<f64>) -> DualNumber<f64> {
+    let f = a.0.sin_cos();
+    (f.0, a.1 * f.1)
 }
 
 #[inline(always)]
-pub fn cos<T: Float>(a: DualNumber<T>) -> DualNumber<T> {
-    let real = a.0.cos();
-    let dual = -a.1 * a.0.sin();
-    (real, dual)
+pub fn cos(a: DualNumber<f64>) -> DualNumber<f64> {
+    let f = a.0.sin_cos();
+    (f.1, -a.1 * f.0)
 }
 
 #[inline(always)]
-pub fn exp<T: Float>(a: DualNumber<T>) -> DualNumber<T> {
+pub fn exp(a: DualNumber<f64>) -> DualNumber<f64> {
     let tmp = a.0.exp();
     (tmp, tmp * a.1)
 }
