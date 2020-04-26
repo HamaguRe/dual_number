@@ -1,7 +1,8 @@
 [package]
 name = "dual_number"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["HamaguRe <space-denpa.jp>"]
 edition = "2018"
 
 [dependencies]
+num-traits = "0.2"
